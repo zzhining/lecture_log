@@ -1,0 +1,14 @@
+{
+  "categories": [
+    {
+      "id": "agent",
+      "name": "에이전트",
+      "pages": [
+        {
+          "title": "Claude 고급 활용",
+          "path": "agent/2026-10-23-ssg-live-shopping-claude-master.html"
+        }
+      ]
+    }
+  ]
+}
