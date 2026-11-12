@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>엑셀·CSV → JSON 변환기</title>
+<style>
+:root{--head:#1e1e21;--brand:#d6001c;--ink:#1d1d1f;--ink2:#46464b;--mute:#7a7a80;--line:#e7e5e1;--bg:#f4f3f1;--card:#fff;--soft:#f7f6f4;--pos:#12805c;--posbg:#e6f4ee;--neg:#c62828;--negbg:#fdecec;--warn:#b26200;--warnbg:#fff3e0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif}
+header{background:var(--head);color:#fff;border-top:4px solid var(--brand);padding:16px 28px}
+header b{font-size:20px}header span{color:#b9b9bf;font-size:13px;margin-left:10px}
+main{max-width:1180px;margin:0 auto;padding:22px 28px 60px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13.5px;color:var(--ink2)}
+.step b{display:block;color:var(--ink);font-size:14.5px}
+.step i{font-style:normal;display:inline-flex;width:22px;height:22px;border-radius:6px;background:var(--brand);color:#fff;font-weight:800;align-items:center;justify-content:center;font-size:13px;margin-right:6px}
+#drop{border:2px dashed #b9b4ac;border-radius:16px;background:var(--card);padding:34px;text-align:center;cursor:pointer;transition:.15s}
+#drop.on{border-color:var(--brand);background:#fff5f6}
+#drop b{font-size:18px}#drop p{margin:6px 0 0;color:var(--mute);font-size:13.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:16px}
+.card h2{font-size:16px;margin:0 0 10px}
+.btn{border:0;border-radius:10px;padding:9px 16px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;background:var(--head);color:#fff}
+.btn.r{background:var(--brand)}.btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.35;cursor:default}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tabs button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700}
+.tabs button small{color:var(--mute);margin-left:4px}.tabs button.on small{color:#ccc}
+.two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px}.two>div{min-width:0}
+@media(max-width:900px){.two,.steps{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:420px;background:var(--soft)}
+table{border-collapse:collapse;font-size:12.5px;width:100%}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left}
+th{background:var(--head);color:#fff;position:sticky;top:0}
+pre{margin:0;padding:12px 14px;font:12.5px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.lab{font-size:12px;font-weight:800;color:var(--mute);margin:0 0 6px}
+ul.chk{list-style:none;margin:0;padding:0}ul.chk li{padding:8px 10px;border-radius:8px;margin:5px 0;font-size:14px}
+li.ok{background:var(--posbg)}li.wa{background:var(--warnbg)}li.er{background:var(--negbg)}
+li .d{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mute{color:var(--mute);font-size:13px}
+details summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<header><b>엑셀·CSV → JSON 변환기</b><span>설치 없음 · 인터넷 연결 없이 동작 · 파일은 이 PC 밖으로 나가지 않음</span></header>
+<main>
+<div class="steps">
+ <div class="step"><b><i>1</i>엑셀에서 작성</b>첫 줄 = 열 이름. 시트 1개 = 표 1개</div>
+ <div class="step"><b><i>2</i>파일을 아래에 끌어놓기</b>.xlsx 그대로, 또는 .csv 여러 개</div>
+ <div class="step"><b><i>3</i>점검 결과 확인</b>미등록 코드·미분류 상품을 알려줌</div>
+ <div class="step"><b><i>4</i>JSON 내려받기</b>전체 묶음 또는 표별 파일</div>
+</div>
+<div id="drop"><b>📂 엑셀(.xlsx) 또는 CSV 파일을 여기에 끌어놓으세요</b><p>클릭해서 선택해도 됩니다 · 여러 파일 가능 · 같은 이름의 표(예: 방송실적_2025-10, 방송실적_2026-10)는 하나로 합쳐짐</p><input id="fi" type="file" multiple accept=".xlsx,.csv" hidden></div>
+
+<div class="card" id="res" hidden>
+ <div class="row" style="justify-content:space-between"><h2 style="margin:0">읽은 표</h2>
+ <div class="row"><button class="btn r" id="dlAll">⬇ 전체 묶음 JSON</button><button class="btn" id="dlOne">⬇ 선택한 표만 JSON</button><button class="btn g" id="reset">처음부터</button></div></div>
+ <p class="mute" id="srcs"></p>
+ <div class="tabs" id="tabs"></div>
+ <div class="two">
+  <div><div class="lab">원본 (엑셀·CSV에서 보던 모양)</div><div class="box" id="tbl"></div></div>
+  <div><div class="lab">JSON (대시보드가 읽는 모양) — 앞 3건</div><div class="box"><pre id="js"></pre></div></div>
+ </div>
+</div>
+
+<div class="card" id="chkc" hidden><h2>연결 점검 결과</h2><ul class="chk" id="chk"></ul>
+<p class="mute">경쟁사TOP5의 비어 있는 세부CAT코드는 '분류규칙' 표로 자동으로 채워서 JSON에 넣습니다(우선순위 숫자가 작은 규칙부터 적용).</p></div>
+
+<div class="card"><details><summary>변환 규칙 보기</summary><ul class="mute" style="margin:10px 0 0">
+ <li>표 이름 = 시트 이름. CSV는 파일 이름에서 뒤쪽 기간 표시(_2026-10, _W41 등)를 뗀 이름</li>
+ <li>"안내" 시트, 이름이 "_"로 시작하는 시트는 건너뜀</li>
+ <li>숫자만 있는 칸은 숫자로 바꿈(단, 0으로 시작하는 코드 예: 0012는 글자 유지). 빈칸은 null</li>
+ <li>열 이름이 "목록"으로 끝나면 쉼표로 나눠 여러 값 목록([...])으로 바꿈. 예: "MD05, MD03" → ["MD05","MD03"]</li>
+ <li>날짜는 2026-10-05 형식 글자로 입력 권장(엑셀 날짜 서식도 자동으로 바꿔줌)</li>
+ <li>CSV는 "CSV UTF-8" 저장을 권장. 일반 "CSV"(한글 깨짐 방식)도 자동으로 읽음</li>
+</ul></details></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+let TB={},SRC=[],cur=null;
+/* ---------- xlsx(zip) 읽기: 브라우저 기본 기능만 사용 ---------- */
+async function unzip(buf){const dv=new DataView(buf),u8=new Uint8Array(buf);let e=-1;for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-65557);i--)if(dv.getUint32(i,true)===0x06054b50){e=i;break}
+ if(e<0)throw new Error('zip 형식이 아님');const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const out={};const td=new TextDecoder();
+ for(let k=0;k<n;k++){const m=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);const name=td.decode(u8.subarray(p+46,p+46+nl));
+  const lnl=dv.getUint16(lo+26,true),lxl=dv.getUint16(lo+28,true);const data=u8.subarray(lo+30+lnl+lxl,lo+30+lnl+lxl+cs);out[name]={m,data};p+=46+nl+xl+cl}
+ return async name=>{const f=out[name];if(!f)return null;if(f.m===0)return td.decode(f.data);const s=new Blob([f.data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(s).text()}}
+const X=t=>new DOMParser().parseFromString(t,'application/xml');
+const colIdx=r=>{let n=0;for(const ch of r.replace(/\d+/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
+function excelDate(v){const d=new Date(Math.round((v-25569)*864e5));return d.toISOString().slice(0,10)}
+async function readXlsx(buf,fname){const get=await unzip(buf);const wb=X(await get('xl/workbook.xml'));const rels=X(await get('xl/_rels/workbook.xml.rels'));
+ const rmap={};[...rels.getElementsByTagName('Relationship')].forEach(r=>rmap[r.getAttribute('Id')]=r.getAttribute('Target'));
+ const ssT=await get('xl/sharedStrings.xml');const ss=ssT?[...X(ssT).getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join('')):[];
+ const stT=await get('xl/styles.xml');let dateStyles=new Set();if(stT){const sx=X(stT);const custom={};[...sx.getElementsByTagName('numFmt')].forEach(f=>custom[f.getAttribute('numFmtId')]=f.getAttribute('formatCode'));const xfs=sx.getElementsByTagName('cellXfs')[0];if(xfs)[...xfs.getElementsByTagName('xf')].forEach((xf,i)=>{const id=+xf.getAttribute('numFmtId');const code=custom[id]||'';if((id>=14&&id<=22)||/y{2,}|m{1,2}[-/.]d|d[-/.]m/i.test(code.replace(/"[^"]*"/g,'')))dateStyles.add(i)})}
+ const res=[];for(const sh of wb.getElementsByTagName('sheet')){const name=sh.getAttribute('name');const rid=sh.getAttribute('r:id')||sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');let tg=rmap[rid];if(!tg)continue;tg=tg.replace(/^\/?xl\//,'');const x=X(await get('xl/'+tg));
+  const grid=[];for(const row of x.getElementsByTagName('row')){const ri=+row.getAttribute('r')-1;const arr=[];for(const c of row.getElementsByTagName('c')){const t=c.getAttribute('t'),s=+c.getAttribute('s');const v=c.getElementsByTagName('v')[0];let val=null;
+   if(t==='s')val=ss[+v.textContent];else if(t==='inlineStr')val=[...c.getElementsByTagName('t')].map(z=>z.textContent).join('');else if(t==='b')val=v&&v.textContent==='1';else if(v){val=v.textContent;if(t!=='str'&&dateStyles.has(s)&&!isNaN(+val))val=excelDate(+val)}
+   arr[colIdx(c.getAttribute('r'))]=val}grid[ri]=arr}
+  res.push({name,grid:grid.filter(Boolean),src:fname+' › '+name})}
+ return res}
+/* ---------- CSV 읽기 ---------- */
+function decode(buf){try{return new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){return new TextDecoder('euc-kr').decode(buf)}}
+function parseCSV(t){t=t.replace(/^﻿/,'');const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===','){row.push(f);f=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}else f+=c}
+ if(f!==''||row.length){row.push(f);rows.push(row)}return rows.filter(r=>r.some(x=>x!==''))}
+/* ---------- 표 → JSON 객체 ---------- */
+function conv(v,col){if(v==null)return null;if(typeof v==='boolean')return v;v=String(v).trim();if(v==='')return null;
+ if(/목록$/.test(col))return v.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean);
+ if(/^-?(0|[1-9]\d*)(\.\d+)?$/.test(v))return Number(v);return v}
+function toRows(grid){const h=(grid[0]||[]).map(x=>x==null?'':String(x).trim());const out=[];for(const r of grid.slice(1)){if(!r||!r.some(x=>x!=null&&String(x).trim()!==''))continue;const o={};h.forEach((k,i)=>{if(k)o[k]=conv(r[i],k)});out.push(o)}return out}
+const tname=n=>n.replace(/\.(csv|xlsx)$/i,'').replace(/_(\d{4}|W\d).*$/,'');
+async function load(files){for(const f of files){const buf=await f.arrayBuffer();
+  if(/\.xlsx$/i.test(f.name)){for(const s of await readXlsx(buf,f.name)){if(s.name==='안내'||s.name.startsWith('_'))continue;add(s.name,toRows(s.grid),s.src)}}
+  else if(/\.csv$/i.test(f.name)){add(tname(f.name),toRows(parseCSV(decode(new Uint8Array(buf)))),f.name)}}
+ classify();render()}
+function add(n,rows,src){(TB[n]=TB[n]||[]).push(...rows);SRC.push(src)}
+/* ---------- 경쟁사 자동 분류 ---------- */
+let unc=[];
+function classify(){unc=[];const R=(TB['분류규칙']||[]).slice().sort((a,b)=>(a['우선순위']??99)-(b['우선순위']??99));const C=TB['경쟁사TOP5'];if(!C||!R.length)return;
+ C.forEach(r=>{if(r['세부CAT코드'])return;const hit=R.find(k=>k['키워드']&&String(r['상품명']||'').includes(k['키워드']));if(hit){r['세부CAT코드']=hit['세부CAT코드'];r['분류방법']='자동:'+hit['키워드']}else{r['분류방법']='미분류';unc.push(r)}})}
+/* ---------- 연결 점검 ---------- */
+function checks(){const L=[];const set=(t,k)=>new Set((TB[t]||[]).map(r=>r[k]));const has=t=>!!TB[t];
+ const ref=(ft,fk,tt,tk,label)=>{if(!has(ft)||!has(tt))return;const s=set(tt,tk);const bad=TB[ft].filter(r=>r[fk]!=null&&(Array.isArray(r[fk])?r[fk].some(v=>!s.has(v)):!s.has(r[fk])));
+  L.push(bad.length?{c:'er',t:`${label}: 기준표에 없는 코드 ${bad.length}건`,d:bad.slice(0,5).map(r=>(r['방송ID']||r['액션ID']||r['상품코드']||'')+' → '+r[fk]).join(' · ')+' — 기준표에 등록하지 않으면 합계에서 빠짐'}:{c:'ok',t:`${label}: 모두 연결됨 (${TB[ft].length}건)`})};
+ ref('방송실적','상품코드','상품','상품코드','방송실적 → 상품');ref('방송실적','MD코드','MD','MD코드','방송실적 → MD');ref('방송실적','세부CAT코드','카테고리','세부CAT코드','방송실적 → 카테고리');ref('방송실적','방송일','달력','날짜','방송실적 → 달력');
+ ref('상품','브랜드코드','브랜드','브랜드코드','상품 → 브랜드');ref('MD목표','MD코드','MD','MD코드','MD목표 → MD');ref('액션보드','담당MD코드목록','MD','MD코드','액션보드 → MD');ref('경쟁사TOP5','방송사코드','방송사','방송사코드','경쟁사 → 방송사');
+ if(has('방송실적')){const seen={},dup=[];TB['방송실적'].forEach(r=>{if(seen[r['방송ID']])dup.push(r['방송ID']);seen[r['방송ID']]=1});L.push(dup.length?{c:'er',t:`방송ID 중복 ${dup.length}건`,d:dup.join(' · ')}:{c:'ok',t:'방송ID 중복 없음'})}
+ if(has('경쟁사TOP5'))L.push(unc.length?{c:'wa',t:`경쟁사 상품 미분류 ${unc.length}건 → 분류규칙에 키워드 추가 필요`,d:unc.map(r=>`${r['방송사코드']} ${r['순위']}위 [${r['브랜드명']}] ${r['상품명']}`).join(' · ')}:{c:'ok',t:'경쟁사 상품 모두 분류됨'});
+ return L}
+/* ---------- 화면 ---------- */
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function render(){const names=Object.keys(TB);if(!names.length)return;$('#res').hidden=false;if(!cur||!TB[cur])cur=names[0];
+ $('#srcs').textContent='읽은 파일: '+[...new Set(SRC.map(s=>s.split(' › ')[0]))].join(', ');
+ $('#tabs').innerHTML=names.map(n=>`<button class="${n===cur?'on':''}" data-t="${esc(n)}">${esc(n)}<small>${TB[n].length}</small></button>`).join('');
+ const rows=TB[cur];const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+ $('#tbl').innerHTML=`<table><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>${rows.slice(0,200).map(r=>`<tr>${cols.map(c=>`<td>${r[c]==null?'':esc(Array.isArray(r[c])?r[c].join(', '):r[c])}</td>`).join('')}</tr>`).join('')}</table>`;
+ $('#js').textContent=JSON.stringify(rows.slice(0,3),null,2)+(rows.length>3?`\n… 외 ${rows.length-3}건`:'');
+ const L=checks();$('#chkc').hidden=!L.length;$('#chk').innerHTML=L.map(x=>`<li class="${x.c}">${x.c==='ok'?'✅':x.c==='wa'?'⚠️':'❌'} <b>${esc(x.t)}</b>${x.d?`<span class="d">${esc(x.d)}</span>`:''}</li>`).join('')}
+function dl(obj,name){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`};
+$('#dlAll').onclick=()=>{const L=checks();dl({'생성정보':{'생성일시':stamp(),'원본':[...new Set(SRC)],'점검':L.map(x=>(x.c==='ok'?'OK ':x.c==='wa'?'주의 ':'오류 ')+x.t)},...TB},'전체묶음.json')};
+$('#dlOne').onclick=()=>dl(TB[cur],cur+'.json');
+$('#reset').onclick=()=>{TB={};SRC=[];cur=null;$('#res').hidden=true;$('#chkc').hidden=true};
+$('#tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b){cur=b.dataset.t;render()}};
+const dz=$('#drop');dz.onclick=()=>$('#fi').click();$('#fi').onchange=e=>load([...e.target.files]);
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('on')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('on')}));
+dz.addEventListener('drop',e=>load([...e.dataTransfer.files]));
+</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI로 대시보드 데이터 정리하기 · 단계별 프롬프트</title>
+<style>
+:root{--ink:#1f2328;--mut:#6b7280;--line:#e3e5e8;--bg:#f6f5f2;--card:#fff;--acc:#2b2f36;--pt:#c8102e;--code:#f3f4f6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard','Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.slide{min-height:100vh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;padding:48px 24px}
+.wrap{width:100%;max-width:1040px}
+.eyebrow{font-size:14px;font-weight:700;color:var(--pt);letter-spacing:.04em;margin-bottom:10px}
+h1{font-size:42px;line-height:1.25;margin:0 0 16px;letter-spacing:-.02em}
+h2{font-size:30px;margin:0 0 6px;letter-spacing:-.01em}
+.lead{font-size:18px;color:var(--mut);margin:0 0 26px;line-height:1.6}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:30px}
+.flow a{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--acc);border-radius:8px;padding:14px}
+.flow a:hover{border-top-color:var(--pt)}
+.flow b{display:block;font-size:13px;color:var(--pt);margin-bottom:4px}
+.flow span{font-size:16px;font-weight:700}
+.flow small{display:block;color:var(--mut);font-size:12.5px;margin-top:6px;line-height:1.45}
+.cond{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.cond span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13.5px}
+.head{display:flex;align-items:baseline;gap:14px;margin-bottom:4px}
+.num{font-size:15px;font-weight:800;color:#fff;background:var(--acc);border-radius:6px;padding:3px 10px}
+.prompt{position:relative;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:8px;margin-top:14px}
+.prompt .tag{font-size:12.5px;font-weight:700;color:var(--mut);padding:10px 16px 0}
+.prompt pre{margin:0;padding:10px 16px 16px;white-space:pre-wrap;word-break:keep-all;font-family:inherit;font-size:16px;line-height:1.75}
+.copy{position:absolute;top:8px;right:8px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 11px;font:inherit;font-size:12.5px;cursor:pointer}
+.copy:hover{background:var(--code)}
+.copy.ok{background:var(--acc);color:#fff;border-color:var(--acc)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.two .prompt pre{font-size:15px}
+.hl{background:#fff1a8;padding:0 2px;border-radius:2px}
+.tail{background:var(--acc);color:#fff;border-left-color:var(--pt)}
+.tail .tag{color:#c9ccd1}.tail .copy{background:transparent;color:#fff;border-color:#5b6068}
+.nav{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:5}
+.nav a{width:11px;height:11px;border-radius:50%;background:#c9ccd1;display:block}
+.nav a.on{background:var(--pt)}
+.hint{position:fixed;left:18px;bottom:14px;font-size:12px;color:var(--mut)}
+@media (max-width:820px){.flow{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}h1{font-size:30px}.nav{display:none}}
+@media print{html{scroll-snap-type:none}.slide{min-height:auto;page-break-after:always;padding:24px}.copy,.nav,.hint{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav"></nav>
+<div class="hint">↑ ↓ 키로 이동 · 각 프롬프트의 [복사] 버튼 사용</div>
+
+<!-- 표지 -->
+<section class="slide" id="s0">
+  <div class="wrap">
+    <div class="eyebrow">생성형 AI 업무 효율화 실습</div>
+    <h1>대시보드 프로토타입 + 흩어진 부서 데이터<br>→ 매달 다시 쓰는 대시보드로</h1>
+    <p class="lead">코드를 실행하지 않고, 엑셀과 AI 대화만으로 진행하는 5단계 프롬프트입니다.</p>
+    <div class="flow">
+      <a href="#s1"><b>STEP 1</b><span>데이터 진단</span><small>원본 파일 설명 듣기</small></a>
+      <a href="#s2"><b>STEP 2</b><span>화면 분석</span><small>대시보드 숫자 풀어보기</small></a>
+      <a href="#s3"><b>STEP 3</b><span>양식 만들기</span><small>엑셀 시트 2장</small></a>
+      <a href="#s4"><b>STEP 4</b><span>데이터 옮기기</span><small>옮기고 숫자 대조</small></a>
+      <a href="#s5"><b>STEP 5</b><span>대시보드 연결</span><small>파일 넣으면 화면 갱신</small></a>
+    </div>
+    <div class="cond">
+      <span>비개발자</span><span>코드 실행 없음</span><span>사내망(오프라인)</span><span>Claude · GPT 공용 문장</span>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 1 -->
+<section class="slide" id="s1">
+  <div class="wrap">
+    <div class="head"><span class="num">STEP 1</span><h2>데이터 진단</h2></div>
+    <p class="lead">첨부: 부서 원본 파일 (한 팀 1~2개월치, 형식별 1개 이상)</p>
+    <div class="prompt">
+      <div class="tag">프롬프트</div><button class="copy">복사</button>
+<pre>첨부한 파일들은 우리 팀이 관리하는 원본 데이터야. <span class="hl">아직 아무것도 만들지 마.</span>
+나는 개발자가 아니니까 쉬운 말로 설명해줘.
+
+각 파일을 열어보고 아래 내용을 표로 정리해줘.
+- 파일 이름 / 시트 이름 / 한 줄이 무엇을 뜻하는지 (방송 1회? 하루? 한 달?)
+- 칸(열)마다: 무슨 뜻인지 / 단위 (원·백만원·억·분·%) / 직접 적은 값인지 계산된 값인지
+- 병합된 칸, 소계 줄, 빈 줄, 메모 줄이 있는 위치
+- 여러 파일에 같이 나오는 항목 (상품명, MD 이름, 방송일 등)과
+  파일마다 다르게 적힌 사례 (예: '서하은' vs '서하은 MD')
+
+뜻을 확실히 모르는 칸은 짐작하지 말고 "확인 필요" 표에 따로 모아줘.</pre>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="slide" id="s2">
+  <div class="wrap">
+    <div class="head"><span class="num">STEP 2</span><h2>화면 분석</h2></div>
+    <p class="lead">첨부: 대시보드 프로토타입(HTML 또는 캡처) + STEP 1 결과표</p>
+    <div class="prompt">
+      <div class="tag">프롬프트</div><button class="copy">복사</button>
+<pre>첨부한 대시보드 화면에 나오는 숫자, 차트, 선택 버튼(필터)을 하나도 빠짐없이 표로 정리해줘.
+
+각 항목마다:
+- 화면에서 부르는 이름
+- 어떻게 계산하는지 (무엇을 무엇으로 나누는지, 어느 기간 기준인지)
+- 계산에 필요한 값이 STEP 1의 어느 파일, 어느 칸에 있는지
+- 지금 가진 파일로는 <span class="hl">만들 수 없는 항목</span> (예: 작년 같은 요일 실적, MD별 배분비율)
+
+그리고 화면 안에 숫자나 이름이 직접 박혀 있는 곳
+(연도, 팀명, 목표 금액, MD 이름, 비율 등)도 따로 목록으로 알려줘.</pre>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="slide" id="s3">
+  <div class="wrap">
+    <div class="head"><span class="num">STEP 3</span><h2>표준 엑셀 양식 만들기</h2></div>
+    <p class="lead">첨부: STEP 1 결과표 + STEP 2 결과표 + "확인 필요"에 대한 내 답변</p>
+    <div class="prompt">
+      <div class="tag">프롬프트</div><button class="copy">복사</button>
+<pre>앞에서 정리한 표 두 개와 내 답변을 참고해서,
+앞으로 우리 팀이 매달 채울 엑셀 양식을 만들어줘. 나는 엑셀 정도만 다룰 수 있어.
+
+[조건]
+- 시트는 2장만 만든다.
+  ① 실적 시트: 방송 1회 = 1줄. 날짜, 시간, 상품명, MD, 카테고리, 방송분,
+     취급액, 한계이익처럼 <span class="hl">숫자 원본만</span> 적는다.
+     달성률·비중·전년비 같은 % 값은 적지 않는다.
+  ② 기준 시트: 팀명, 연도, 월별 목표, MD 목록, MD별 배분비율처럼
+     자주 바뀌지 않는 값을 적는다.
+- 병합 칸, 소계 줄, 빈 줄 없이 1행은 제목, 2행부터 데이터.
+- 금액 단위는 원 단위로 통일.
+
+[결과로 줄 것]
+- 칸 이름, 적는 방법, 예시 2줄 (표로)
+- 지금 원본 파일의 어느 칸을 양식의 어느 칸으로 옮기면 되는지 대응표
+- 꼭 지켜야 할 작성 규칙 5개 이내
+- 내려받을 수 있는 엑셀 양식 파일</pre>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 -->
+<section class="slide" id="s4">
+  <div class="wrap">
+    <div class="head"><span class="num">STEP 4</span><h2>데이터 옮기기 + 숫자 대조</h2></div>
+    <p class="lead">첨부: 원본 파일 + STEP 3 양식 · 데이터 양에 따라 A 또는 B 선택</p>
+    <div class="two">
+      <div class="prompt">
+        <div class="tag">A. 데이터가 적을 때 (한 달, 수백 줄 이내)</div><button class="copy">복사</button>
+<pre>첨부한 원본 파일(10월 편성실적.xlsx)을
+STEP 3 양식의 '실적 시트' 형식으로 바꿔줘.
+
+- 결과는 내려받을 수 있는 엑셀 파일로 줘.
+- 옮기다 애매한 줄(이름이 다름, 단위 불명확, 빈칸)은 따로 표로 알려줘.
+- 마지막에 대조표를 붙여줘:
+  원본 합계 vs 바꾼 결과 합계
+  (취급액, 방송분, 줄 수)</pre>
+      </div>
+      <div class="prompt">
+        <div class="tag">B. 데이터가 많을 때 (내가 엑셀에서 직접)</div><button class="copy">복사</button>
+<pre>원본 파일 구조는 STEP 1 결과표와 같아.
+이걸 STEP 3 양식으로 옮기는 엑셀 작업 순서를 알려줘.
+
+- 복사·붙여넣기, 찾기·바꾸기,
+  VLOOKUP 수준의 수식만 써서.
+- 단계마다 "이렇게 보이면 성공"
+  확인 방법을 붙여줘.</pre>
+      </div>
+    </div>
+    <div class="prompt">
+      <div class="tag">합계가 안 맞을 때</div><button class="copy">복사</button>
+<pre>바꾼 결과의 10월 취급액 합계가 월간보고(첨부)와 다르게 나와.
+① 금액 단위(원/백만원) ② 월을 걸치는 주차 ③ 취소분 포함 여부 중
+무엇 때문인지 찾아서, 차이가 나는 줄을 보여줘.</pre>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 5 -->
+<section class="slide" id="s5">
+  <div class="wrap">
+    <div class="head"><span class="num">STEP 5</span><h2>대시보드를 양식에 연결</h2></div>
+    <p class="lead">첨부: 대시보드 프로토타입 + STEP 3 양식 + STEP 2 결과표</p>
+    <div class="prompt">
+      <div class="tag">프롬프트</div><button class="copy">복사</button>
+<pre>첨부한 대시보드는 디자인을 그대로 두고, STEP 3 엑셀 양식을 화면에 끌어다 놓으면
+다시 그려지도록 바꿔줘.
+
+[조건]
+- HTML 파일 1개. 설치 없이 크롬·엣지에서 더블클릭으로 열린다.
+- 인터넷이 안 되는 사내망에서도 동작한다.
+- 팀명, 연도, 목표, MD 배분비율은 화면 안에 직접 쓰지 말고 <span class="hl">'기준 시트'에서 읽는다.</span>
+- 달성률·비중·전년비는 대시보드가 금액으로 직접 계산한다.
+- 화면 맨 위에 "불러온 파일 / 줄 수 / 취급액 합계"를 보여줘서
+  STEP 4 대조표와 바로 비교할 수 있게 한다.
+- 양식과 다른 파일을 넣으면 어느 칸이 문제인지 한글로 알려준다.
+
+[다 만든 뒤 답해줘]
+- 11월 데이터를 넣을 때 내가 고쳐야 하는 것이 있는가?
+- 다른 팀이 쓰려면 무엇만 바꾸면 되는가?</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 공통 -->
+<section class="slide" id="s6">
+  <div class="wrap">
+    <div class="eyebrow">모든 단계 공통</div>
+    <h2>프롬프트 끝에 붙이는 문장</h2>
+    <p class="lead">AI가 빈 곳을 그럴듯하게 채우는 것과 결과가 중간에 끊기는 것을 막습니다.</p>
+    <div class="prompt tail">
+      <div class="tag">꼬리말</div><button class="copy">복사</button>
+<pre>모르는 내용은 짐작하지 말고 "확인 필요"로 표시해줘.
+결과가 길면 파일로 만들어 내려받을 수 있게 주고,
+중간에 끊기면 내가 "이어서"라고 할 테니 끊긴 곳부터 계속 써줘.</pre>
+    </div>
+    <div class="prompt">
+      <div class="tag">파일을 올릴 수 없을 때</div><button class="copy">복사</button>
+<pre>파일 업로드가 안 돼서 원본의 제목 줄과 데이터 20줄만 붙여넣을게.
+이 20줄로 구조를 파악해서 진행해줘. 실제 파일은 수천 줄이야.
+
+(여기에 붙여넣기)</pre>
+    </div>
+    <div class="prompt">
+      <div class="tag">새 대화에서 이어갈 때</div><button class="copy">복사</button>
+<pre>이전 대화에서 STEP 1~(n)까지 진행했어. 결과물을 첨부할게.
+이 결과물을 기준으로 STEP (n+1)을 진행해줘.</pre>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var nav=document.getElementById('nav');
+  slides.forEach(function(s){var a=document.createElement('a');a.href='#'+s.id;nav.appendChild(a);});
+  var dots=[].slice.call(nav.children);
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var i=slides.indexOf(e.target);dots.forEach(function(d,j){d.classList.toggle('on',i===j);});}});},{threshold:.55});
+  slides.forEach(function(s){io.observe(s);});
+  function cur(){var y=window.scrollY+window.innerHeight/2,c=0;slides.forEach(function(s,i){if(s.offsetTop<=y)c=i;});return c;}
+  document.addEventListener('keydown',function(e){
+    var k=e.key,i=cur();
+    if(k==='ArrowDown'||k==='PageDown'||k===' '){e.preventDefault();slides[Math.min(i+1,slides.length-1)].scrollIntoView();}
+    if(k==='ArrowUp'||k==='PageUp'){e.preventDefault();slides[Math.max(i-1,0)].scrollIntoView();}
+  });
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var t=b.parentNode.querySelector('pre').innerText;
+      function done(){b.textContent='복사됨';b.classList.add('ok');setTimeout(function(){b.textContent='복사';b.classList.remove('ok');},1400);}
+      function fallback(){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(x){}document.body.removeChild(ta);done();}
+      try{navigator.clipboard.writeText(t).then(done,fallback);}catch(x){fallback();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

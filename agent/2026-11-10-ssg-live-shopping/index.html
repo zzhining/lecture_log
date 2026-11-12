@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSG 라이브쇼핑 · AI 대시보드 강의 자료 (2026-11-10)</title>
+<style>
+  :root { --bg:#f7f7f5; --fg:#1f2328; --muted:#6b7280; --card:#fff; --line:#e5e7eb; --accent:#2563eb; --tag:#eef2ff; --tagfg:#3730a3; color-scheme: light; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16181d; --fg:#e6e8eb; --muted:#9aa1ab; --card:#1f2229; --line:#2e323b; --accent:#6ea8fe; --tag:#26304d; --tagfg:#b6c4ff; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:2rem 1rem 3rem; }
+  h1 { margin:0; font-size:1.6rem; }
+  .sub { color:var(--muted); margin:.4rem 0 0; }
+  .note { margin:1rem 0 0; padding:.7rem 1rem; border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--muted); font-size:.92rem; }
+  h2 { margin:2.2rem 0 .8rem; font-size:1.1rem; }
+  h2 small { color:var(--muted); font-weight:400; margin-left:.4rem; }
+  .grid { display:grid; gap:.7rem; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
+  a.card { display:block; padding:1rem 1.1rem; background:var(--card); border:1px solid var(--line); border-radius:12px; color:var(--fg); text-decoration:none; }
+  a.card:hover { border-color:var(--accent); }
+  .card h3 { margin:0 0 .3rem; font-size:1rem; line-height:1.4; }
+  .card p { margin:0; color:var(--muted); font-size:.9rem; }
+  .tag { display:inline-block; margin-left:.5rem; padding:0 .5rem; border-radius:999px; background:var(--tag); color:var(--tagfg); font-size:.72rem; font-weight:600; vertical-align:middle; }
+  ul.files { list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--card); overflow:hidden; }
+  ul.files li { display:flex; gap:1rem; align-items:center; justify-content:space-between; padding:.8rem 1rem; border-top:1px solid var(--line); }
+  ul.files li:first-child { border-top:0; }
+  ul.files li div { min-width:0; }
+  ul.files b { display:block; font-size:.95rem; word-break:break-all; }
+  ul.files span { color:var(--muted); font-size:.85rem; }
+  a.btn { flex:none; padding:.35rem .8rem; border:1px solid var(--line); border-radius:8px; color:var(--accent); text-decoration:none; font-size:.85rem; white-space:nowrap; }
+  a.btn:hover { border-color:var(--accent); }
+  footer { margin-top:2.5rem; color:var(--muted); font-size:.85rem; }
+  footer a { color:var(--accent); }
+  @media (max-width:520px) { ul.files li { flex-direction:column; align-items:flex-start; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>SSG 라이브쇼핑 · AI 대시보드 강의 자료</h1>
+  <p class="sub">2026-11-10 강의에 사용한 자료입니다. 강의자료, 대시보드 예시, 샘플 데이터를 한곳에 모았습니다.</p>
+  <p class="note">여기 있는 대시보드 예시와 샘플 데이터의 이름, 상품, 금액은 모두 <b>설명용으로 만든 가상의 값</b>입니다. 실제 실적이 아닙니다.</p>
+
+  <h2>강의자료</h2>
+  <div class="grid">
+    <a class="card" href="lecture/data-management.html"><h3>대시보드를 계속 쓰려면 — 데이터 관리 기본기</h3><p>원본 기록 방식, 기준표와 기록장, 연결 점검, 엑셀에서 JSON 만들기까지. 슬라이드 형식 (F 전체화면)</p></a>
+    <a class="card" href="lecture/ai-dashboard-data-prompts.html"><h3>AI로 대시보드 데이터 정리하기 · 단계별 프롬프트</h3><p>엑셀 데이터를 AI로 정리하는 단계별 프롬프트 모음</p></a>
+  </div>
+
+  <h2>대시보드 예시 <small>직접 열어서 눌러 보세요</small></h2>
+  <div class="grid">
+    <a class="card" href="example/dashboard-example-health-food.html"><h3>대시보드 예시 · 건강식품팀 편성·실적<span class="tag">예시</span></h3><p>CSV를 올리면 월별 목표 달성과 시간대·PPL 분석을 보여 줍니다. 화면 안의 "샘플 데이터로 보기" 버튼으로 바로 체험할 수 있어요.</p></a>
+    <a class="card" href="example/dashboard-example-beauty-md.html"><h3>대시보드 예시 · 뷰티팀 MD 성과 (41주차)<span class="tag">예시</span></h3><p>이번 주 핵심, MD 스코어카드, CAT 분석, 시장·경쟁사, 브랜드 순위, 상세 실적표의 6개 탭 구성</p></a>
+    <a class="card" href="example/dashboard-example-weekly-report/index.html"><h3>대시보드 예시 · 주간보고 작성·취합 시스템<span class="tag">예시</span></h3><p>담당자가 업무 파일로 주간보고를 쓰고, 팀장이 모아서 보는 설치 없는 HTML 도구 (작성기 + 취합 뷰어)</p></a>
+  </div>
+
+  <h2>샘플 데이터 <small>강의 실습용</small></h2>
+  <ul class="files">
+    <li><div><b>샘플데이터_2026W41.zip</b><span>기준표 6종, 기록장, 액션보드, 결과물 JSON, 엑셀, 변환기가 모두 들어 있는 전체 묶음</span></div><a class="btn" href="sample-data/%EC%83%98%ED%94%8C%EB%8D%B0%EC%9D%B4%ED%84%B0_2026W41.zip" download>내려받기 · 42KB</a></li>
+    <li><div><b>샘플데이터_2026W41.xlsx</b><span>위 표 12개를 시트로 모은 엑셀 한 파일</span></div><a class="btn" href="sample-data/%EC%83%98%ED%94%8C%EB%8D%B0%EC%9D%B4%ED%84%B0_2026W41.xlsx" download>내려받기 · 23KB</a></li>
+    <li><div><b>엑셀_JSON_변환기.html</b><span>엑셀·CSV를 JSON으로 바꾸고 연결 오류를 점검하는 도구 (설치·인터넷 없이 동작)</span></div><a class="btn" href="sample-data/%EC%97%91%EC%85%80_JSON_%EB%B3%80%ED%99%98%EA%B8%B0.html">열기 · 16KB</a></li>
+    <li><div><b>ledger_sample.csv</b><span>건강식품 대시보드용 편성실적 원장 (방송 1건 = 1행)</span></div><a class="btn" href="sample-data/health-food/ledger_sample.csv" download>내려받기 · 10KB</a></li>
+    <li><div><b>targets_sample.csv</b><span>건강식품 대시보드용 월별 목표</span></div><a class="btn" href="sample-data/health-food/targets_sample.csv" download>내려받기 · 1KB</a></li>
+    <li><div><b>md_share_sample.csv</b><span>건강식품 대시보드용 MD 배분 비율</span></div><a class="btn" href="sample-data/health-food/md_share_sample.csv" download>내려받기 · 1KB</a></li>
+    <li><div><b>주간보고_업무파일_샘플.zip</b><span>작성기에 올려 볼 엑셀, 워드 메모, 메일 파일</span></div><a class="btn" href="sample-data/%EC%A3%BC%EA%B0%84%EB%B3%B4%EA%B3%A0_%EC%97%85%EB%AC%B4%ED%8C%8C%EC%9D%BC_%EC%83%98%ED%94%8C.zip" download>내려받기 · 41KB</a></li>
+    <li><div><b>주간보고_제출폴더_샘플.zip</b><span>취합 뷰어에서 열어 볼 제출 JSON 30개 (5명 × 6주)</span></div><a class="btn" href="sample-data/%EC%A3%BC%EA%B0%84%EB%B3%B4%EA%B3%A0_%EC%A0%9C%EC%B6%9C%ED%8F%B4%EB%8D%94_%EC%83%98%ED%94%8C.zip" download>내려받기 · 48KB</a></li>
+  </ul>
+
+  <footer>소스 저장소: <a href="https://github.com/zzhining/lecture_log">github.com/zzhining/lecture_log</a></footer>
+</main>
+</body>
+</html>
